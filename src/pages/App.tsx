@@ -11,7 +11,7 @@ function useForceUpdate() {
 }
 
 function App() {
-  const timeOut = 3000;
+  const timeOut = 5000;
   const forceUpdate = useForceUpdate();
   const { teams, diff: allDiff } = useTeams(timeOut);
 

@@ -1,34 +1,18 @@
-import { Box, Button, ButtonGroup, Center, Container, Flex, FormControl, FormLabel, Heading, Input, InputGroup, InputLeftElement, Select } from "@chakra-ui/react"
+import { Box, Button, ButtonGroup, Card, CardBody, Center, Container, Flex, FormControl, FormLabel, Heading, Input, InputGroup, InputLeftElement } from "@chakra-ui/react"
 import FlipMove from "react-flip-move"
 import TeamCard from "../components/TeamCard"
 import useTeams from "../hooks/useTeams"
-import { useEffect, useMemo, useState } from "react";
-import { Team } from "../types";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const parseInputValue = (value: number | undefined) => value !== undefined ? `${value}` : '';
 
-export function TeamSelect(props: { teams: Team[], value: number | undefined, onChange: (teamId: number | undefined) => void }) {
-    const { teams, onChange, value } = props;
-
-    const [selected, setSelected] = useState<string>(parseInputValue(value));
-    useEffect(() => setSelected(parseInputValue(value)), [value]);
-
-    const isInvalid = useMemo(() => teams.findIndex((v) => v.id === parseInt(selected)) === -1, [selected, teams]);
-
-    useEffect(() => {
-        if (!isInvalid) {
-            onChange(parseInt(selected));
-        } else {
-            onChange(undefined);
-        }
-    }, [isInvalid, onChange, selected]);
-
-    return <Select placeholder='選擇小隊' value={selected} onChange={(e) => setSelected(e.target.value)}>
-        {teams.sort((a, b) => a.id - b.id).map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
-    </Select>;
-}
-
-export function AmountInput({ value, onChange }: { value: number | undefined, onChange: (val: number | undefined) => void }) {
+type AmountInputProps = {
+    value: number | undefined,
+    onChange: (val: number | undefined) => void,
+    onEnter?: () => void,
+    inputRef: React.MutableRefObject<any>,
+};
+export function AmountInput({ value, onChange, onEnter, inputRef }: AmountInputProps) {
     const [val, setVal] = useState<string>(parseInputValue(value));
 
     useEffect(() => setVal(parseInputValue(value)), [value]);
@@ -50,7 +34,16 @@ export function AmountInput({ value, onChange }: { value: number | undefined, on
             fontSize='1.2em'
             children='$'
         />
-        <Input isInvalid={isInvalid} placeholder='輸入金額' value={val} onChange={(e) => setVal(e.target.value)} />
+        <Input
+            ref={inputRef}
+            isInvalid={isInvalid}
+            placeholder='輸入金額'
+            value={val}
+            onChange={(e) => setVal(e.target.value)}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter' && onEnter) onEnter();
+            }}
+        />
     </InputGroup>;
 }
 
@@ -84,6 +77,8 @@ export default function AdminPage() {
         }
     }
 
+    const inputRef = useRef<HTMLInputElement>();
+
     return <Container maxW='container.lg' marginTop={10}>
         <Flex direction='column' justify='space-betweens'>
             <Box marginBottom={10}>
@@ -92,28 +87,33 @@ export default function AdminPage() {
             <Box>
                 <Flex justify='space-between'>
                     <Box marginRight={2} flex={1}>
-                        <FormControl marginBottom={2}>
-                            <FormLabel>小隊</FormLabel>
-                            <TeamSelect teams={teams} value={teamId} onChange={setTeamId} />
-                        </FormControl>
-                        <FormControl marginBottom={6}>
-                            <FormLabel>金額</FormLabel>
-                            <AmountInput value={amount} onChange={setAmount} />
-                        </FormControl>
-                        <Center>
-                            <ButtonGroup gap='4'>
-                                <Button isLoading={loading} isDisabled={!canSubmit} onClick={() => mutate('add')} colorScheme='green'>+</Button>
-                                <Button isLoading={loading} isDisabled={!canSubmit} onClick={() => mutate('sub')} colorScheme='red'>-</Button>
-                                <Button isLoading={loading} isDisabled={!canSubmit} onClick={() => mutate('set')} colorScheme='yellow'>Set to</Button>
-                            </ButtonGroup>
-                        </Center>
+                        <Card>
+                            <CardBody>
+                                <FormControl marginBottom={6}>
+                                    <FormLabel>金額</FormLabel>
+                                    <AmountInput inputRef={inputRef} value={amount} onChange={setAmount} onEnter={() => mutate('add')} />
+                                </FormControl>
+                                <Center>
+                                    <ButtonGroup gap='4'>
+                                        <Button isLoading={loading} isDisabled={!canSubmit} onClick={() => mutate('add')} colorScheme='green'>+</Button>
+                                        <Button isLoading={loading} isDisabled={!canSubmit} onClick={() => mutate('sub')} colorScheme='red'>-</Button>
+                                        <Button isLoading={loading} isDisabled={!canSubmit} onClick={() => mutate('set')} colorScheme='yellow'>Set to</Button>
+                                    </ButtonGroup>
+                                </Center>
+                            </CardBody>
+                        </Card>
                     </Box>
                     <Box marginLeft={2} flex={1}>
                         <Flex direction='column'>
                             <FlipMove>
-                                {teams.sort((a, b) => b.money - a.money).map((v, i) => {
+                                {teams.sort((a, b) => b.money - a.money).map((v) => {
                                     return <TeamCard
                                         key={v.id} name={v.name} money={v.money} diff={0}
+                                        onClick={() => {
+                                            inputRef.current?.focus();
+                                            setTeamId(v.id)
+                                        }}
+                                        borderColor='#4299E1' borderWidth={teamId === v.id ? '2px' : '0px'}
                                         marginBottom={2} size='sm'
                                     />
                                 })}
