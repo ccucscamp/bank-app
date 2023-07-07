@@ -16,7 +16,7 @@ root.render(
   <React.StrictMode>
     <ColorModeScript initialColorMode={theme.config.initialColorMode} />
     <ChakraProvider theme={theme}>
-      <BrowserRouter>
+      <BrowserRouter basename='/bank-app'>
         <Routes>
           <Route path="/" element={<App />} />
           <Route path="/admin" element={<AdminPage />} />
