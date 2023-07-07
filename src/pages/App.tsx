@@ -1,5 +1,5 @@
 
-import { Flex, Box, Container, Heading } from '@chakra-ui/react';
+import { Flex, Box, Container, Heading, Image, Center } from '@chakra-ui/react';
 import FlipMove from 'react-flip-move';
 import TeamCard from '../components/TeamCard';
 import useTeams from '../hooks/useTeams';
@@ -22,6 +22,11 @@ function App() {
   return (
     <Container marginTop={10}>
       <Flex direction='column' justify='space-betweens'>
+        <Center marginBottom={5}>
+          <Image boxSize='100' borderRadius='5'
+            src='./bank-app/logo512.png' alt='2023 csie camp logo'
+          />
+        </Center>
         <Box marginBottom={10}>
           <Heading textAlign='center'>找尋我的200億 - 小隊存款</Heading>
         </Box>
