@@ -24,7 +24,7 @@ function App() {
       <Flex direction='column' justify='space-betweens'>
         <Center marginBottom={5}>
           <Image boxSize='100' borderRadius='5'
-            src='./bank-app/logo512.png' alt='2023 csie camp logo'
+            src='./logo512.png' alt='2023 csie camp logo'
           />
         </Center>
         <Box marginBottom={10}>
