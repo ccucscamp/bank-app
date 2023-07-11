@@ -11,3 +11,54 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.lottery-ball {
+  background: linear-gradient(270deg, #c2ec7c, #86d3da);
+  background-size: 400% 400%;
+
+  -webkit-animation: LotterySelect 2s ease infinite;
+  -moz-animation: LotterySelect 2s ease infinite;
+  animation: LotterySelect 2s ease infinite;
+}
+
+@-webkit-keyframes LotterySelect {
+  0% {
+    background-position: 0% 50%
+  }
+
+  50% {
+    background-position: 100% 50%
+  }
+
+  100% {
+    background-position: 0% 50%
+  }
+}
+
+@-moz-keyframes LotterySelect {
+  0% {
+    background-position: 0% 50%
+  }
+
+  50% {
+    background-position: 100% 50%
+  }
+
+  100% {
+    background-position: 0% 50%
+  }
+}
+
+@keyframes LotterySelect {
+  0% {
+    background-position: 0% 50%
+  }
+
+  50% {
+    background-position: 100% 50%
+  }
+
+  100% {
+    background-position: 0% 50%
+  }
+}
