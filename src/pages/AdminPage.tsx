@@ -80,6 +80,27 @@ export default function AdminPage() {
         }
     }
 
+    const unfreeze = () => {
+        const t = teams.find((v) => v.id === teamId);
+        if (!t) return;
+
+        const body = JSON.stringify({
+            type: 'set',
+            teamId,
+            amount: t.money,
+            isFreeze: false,
+        });
+
+        setLoading(true);
+        fetch(`${process.env.REACT_APP_BACKEND}/api`, {
+            method: 'POST',
+            body,
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).finally(() => setLoading(false));
+    }
+
     const [currDispMode, setCurrDispMode] = useState<'bank' | 'lottery'>('bank');
     useEffect(() => {
         socket.on('display_mode_updated', (newMode) => setCurrDispMode(newMode));
@@ -109,6 +130,7 @@ export default function AdminPage() {
                                         <Button isLoading={loading} isDisabled={!canSubmit} onClick={() => mutate('add')} colorScheme='green'>+</Button>
                                         <Button isLoading={loading} isDisabled={!canSubmit} onClick={() => mutate('sub')} colorScheme='red'>-</Button>
                                         <Button isLoading={loading} isDisabled={!canSubmit} onClick={() => mutate('set')} colorScheme='yellow'>Set to</Button>
+                                        <Button isLoading={loading} isDisabled={!canSubmit} onClick={unfreeze} colorScheme='blue'>Unfreeze</Button>
                                     </ButtonGroup>
                                 </Center>
                                 <FormControl display='flex' alignItems='center'>
@@ -156,6 +178,7 @@ export default function AdminPage() {
                                 {teams.sort((a, b) => b.money - a.money).map((v) => {
                                     return <TeamCard
                                         key={v.id} name={v.name} money={v.money} diff={0}
+                                        smallMoney={v.beforeFreezeMoney !== v.money ? v.beforeFreezeMoney : undefined}
                                         onClick={() => {
                                             inputRef.current?.focus();
                                             setTeamId(v.id)

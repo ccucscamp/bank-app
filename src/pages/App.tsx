@@ -142,6 +142,7 @@ function Bank() {
 
           return <TeamCard
             key={v.id} name={v.name} money={v.beforeFreezeMoney} diff={diff}
+            addQMark={v.beforeFreezeMoney !== v.money}
             marginBottom={2} size='sm'
           />
         })}
