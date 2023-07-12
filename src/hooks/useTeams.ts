@@ -25,7 +25,7 @@ export default function useTeams(diffTimeout: number) {
                 const newDiff = {
                     ...diff,
                     [team.id]: {
-                        amount: team.money - oldTeam.money,
+                        amount: team.beforeFreezeMoney - oldTeam.beforeFreezeMoney,
                         at: new Date(),
                     }
                 };

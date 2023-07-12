@@ -137,11 +137,11 @@ function Bank() {
   return <Box>
     <Flex direction='column'>
       <FlipMove>
-        {teams.sort((a, b) => b.money - a.money).map((v, i) => {
+        {teams.sort((a, b) => b.beforeFreezeMoney - a.beforeFreezeMoney).map((v, i) => {
           const diff = (Date.now() - allDiff[v.id]?.at.getTime() < timeOut) ? allDiff[v.id].amount : undefined;
 
           return <TeamCard
-            key={v.id} name={v.name} money={v.money} diff={diff}
+            key={v.id} name={v.name} money={v.beforeFreezeMoney} diff={diff}
             marginBottom={2} size='sm'
           />
         })}

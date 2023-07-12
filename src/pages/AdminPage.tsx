@@ -1,4 +1,4 @@
-import { Box, Button, ButtonGroup, Card, CardBody, CardHeader, Center, Container, Flex, FormControl, FormLabel, Heading, Input, InputGroup, InputLeftElement } from "@chakra-ui/react"
+import { Box, Button, ButtonGroup, Card, CardBody, CardHeader, Center, Container, Flex, FormControl, FormLabel, Heading, Input, InputGroup, InputLeftElement, Switch } from "@chakra-ui/react"
 import FlipMove from "react-flip-move"
 import TeamCard from "../components/TeamCard"
 import useTeams from "../hooks/useTeams"
@@ -53,6 +53,7 @@ export default function AdminPage() {
 
     const [amount, setAmount] = useState<number | undefined>(0);
     const [teamId, setTeamId] = useState<number>();
+    const [isFreeze, setIsFreeze] = useState(false);
 
     const canSubmit = useMemo(() => teamId !== undefined && amount !== undefined, [teamId, amount]);
 
@@ -63,6 +64,7 @@ export default function AdminPage() {
                 type: act,
                 teamId,
                 amount,
+                isFreeze,
             });
 
             setLoading(true);
@@ -102,13 +104,19 @@ export default function AdminPage() {
                                     <FormLabel>金額</FormLabel>
                                     <AmountInput inputRef={inputRef} value={amount} onChange={setAmount} onEnter={() => mutate('add')} />
                                 </FormControl>
-                                <Center>
+                                <Center marginBottom={6}>
                                     <ButtonGroup gap='4'>
                                         <Button isLoading={loading} isDisabled={!canSubmit} onClick={() => mutate('add')} colorScheme='green'>+</Button>
                                         <Button isLoading={loading} isDisabled={!canSubmit} onClick={() => mutate('sub')} colorScheme='red'>-</Button>
                                         <Button isLoading={loading} isDisabled={!canSubmit} onClick={() => mutate('set')} colorScheme='yellow'>Set to</Button>
                                     </ButtonGroup>
                                 </Center>
+                                <FormControl display='flex' alignItems='center'>
+                                    <FormLabel htmlFor='freeze' mb='0'>
+                                        Freeze?
+                                    </FormLabel>
+                                    <Switch id='freeze' isChecked={isFreeze} onChange={(e) => setIsFreeze(e.target.checked)} />
+                                </FormControl>
                             </CardBody>
                         </Card>
                         <Card>
