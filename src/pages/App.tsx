@@ -1,9 +1,10 @@
 
-import { Flex, Box, Container, Heading, Image, Center, Button } from '@chakra-ui/react';
+import { Flex, Box, Container, Heading, Image, Center } from '@chakra-ui/react';
 import FlipMove from 'react-flip-move';
 import TeamCard from '../components/TeamCard';
 import useTeams from '../hooks/useTeams';
 import { useEffect, useMemo, useState } from 'react';
+import { socket } from '../socket';
 
 function useForceUpdate() {
   const [, setValue] = useState(0); // integer state
@@ -33,7 +34,7 @@ function Lottery() {
             do {
               runNum = runNum + 1;
               if (runNum > 13) runNum = 1;
-            // eslint-disable-next-line no-loop-func
+              // eslint-disable-next-line no-loop-func
             } while (exists.findIndex((v) => v === runNum) !== -1);
             setRunningNum(runNum);
           }, speed);
@@ -62,25 +63,35 @@ function Lottery() {
     })
   }
 
-  const startLottery = () => {
-    let choosenNum: number[] = [];
+  useEffect(() => {
+    const startLottery = () => {
+      let choosenNum: number[] = [];
 
-    const update = (v: number) => {
-      choosenNum = [...choosenNum, v];
-      setChoosenNunber(choosenNum);
+      const update = (v: number) => {
+        choosenNum = [...choosenNum, v];
+        setChoosenNunber(choosenNum);
+      };
+
+      pickOne(choosenNum)
+        .then(update)
+        .then(() => pickOne(choosenNum))
+        .then(update)
+        .then(() => pickOne(choosenNum))
+        .then(update)
+        .then(() => pickOne(choosenNum))
+        .then(update)
+        .then(() => pickOne(choosenNum))
+        .then(update);
     };
 
-    pickOne(choosenNum)
-      .then(update)
-      .then(() => pickOne(choosenNum))
-      .then(update)
-      .then(() => pickOne(choosenNum))
-      .then(update)
-      .then(() => pickOne(choosenNum))
-      .then(update)
-      .then(() => pickOne(choosenNum))
-      .then(update);
-  };
+    socket.on('lottery_run', () => {
+      startLottery();
+    });
+
+    return () => {
+      socket.off('lottery_run');
+    }
+  }, []);
 
   const dispChoosenNumber = useMemo(() => {
     return [0, 0, 0, 0, 0].map((v, i) => choosenNumber[i] ?? v);
@@ -108,7 +119,6 @@ function Lottery() {
         <Heading color='white' textAlign='center' size='4xl'>{numberToCardNum(runningNum)}</Heading>
       </Box>
       : null}
-    <Button marginTop={10} onClick={startLottery}>Click me</Button>
   </>
 }
 
@@ -142,7 +152,17 @@ function Bank() {
 
 function App() {
 
-  const [displayMode, setDisplayMode] = useState<'bank' | 'lottery'>('lottery');
+  useEffect(() => {
+    socket.on('display_mode_updated', (newMode) => {
+      setDisplayMode(newMode);
+    });
+
+    return () => {
+      socket.off('display_mode_updated');
+    }
+  }, []);
+
+  const [displayMode, setDisplayMode] = useState<'bank' | 'lottery'>('bank');
 
   return (
     <Container marginTop={10}>

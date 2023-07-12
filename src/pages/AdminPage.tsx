@@ -1,8 +1,9 @@
-import { Box, Button, ButtonGroup, Card, CardBody, Center, Container, Flex, FormControl, FormLabel, Heading, Input, InputGroup, InputLeftElement } from "@chakra-ui/react"
+import { Box, Button, ButtonGroup, Card, CardBody, CardHeader, Center, Container, Flex, FormControl, FormLabel, Heading, Input, InputGroup, InputLeftElement } from "@chakra-ui/react"
 import FlipMove from "react-flip-move"
 import TeamCard from "../components/TeamCard"
 import useTeams from "../hooks/useTeams"
 import { useEffect, useMemo, useRef, useState } from "react";
+import { socket } from "../socket";
 
 const parseInputValue = (value: number | undefined) => value !== undefined ? `${value}` : '';
 
@@ -77,6 +78,14 @@ export default function AdminPage() {
         }
     }
 
+    const [currDispMode, setCurrDispMode] = useState<'bank' | 'lottery'>('bank');
+    useEffect(() => {
+        socket.on('display_mode_updated', (newMode) => setCurrDispMode(newMode));
+        return () => {
+            socket.off('display_mode_updated');
+        };
+    }, []);
+
     const inputRef = useRef<HTMLInputElement>();
 
     return <Container maxW='container.lg' marginTop={10}>
@@ -87,7 +96,7 @@ export default function AdminPage() {
             <Box>
                 <Flex justify='space-between'>
                     <Box marginRight={2} flex={1}>
-                        <Card>
+                        <Card marginBottom={4}>
                             <CardBody>
                                 <FormControl marginBottom={6}>
                                     <FormLabel>金額</FormLabel>
@@ -100,6 +109,36 @@ export default function AdminPage() {
                                         <Button isLoading={loading} isDisabled={!canSubmit} onClick={() => mutate('set')} colorScheme='yellow'>Set to</Button>
                                     </ButtonGroup>
                                 </Center>
+                            </CardBody>
+                        </Card>
+                        <Card>
+                            <CardHeader>
+                                <Heading size='md'>Display</Heading>
+                            </CardHeader>
+                            <CardBody>
+                                <ButtonGroup variant='outline' spacing='6'>
+                                    <Button
+                                        colorScheme='blue'
+                                        variant={currDispMode === 'bank' ? 'solid' : 'outline'}
+                                        onClick={() => socket.emit('update_disp_mode', 'bank')}
+                                    >
+                                        Bank
+                                    </Button>
+                                    <Button
+                                        colorScheme='orange'
+                                        variant={currDispMode === 'lottery' ? 'solid' : 'outline'}
+                                        onClick={() => socket.emit('update_disp_mode', 'lottery')}
+                                    >
+                                        Lottery
+                                    </Button>
+                                    <Button
+                                        colorScheme='green'
+                                        isDisabled={currDispMode !== 'lottery'}
+                                        onClick={() => socket.emit('lottery_run')}
+                                    >
+                                        Run Lottery
+                                    </Button>
+                                </ButtonGroup>
                             </CardBody>
                         </Card>
                     </Box>
