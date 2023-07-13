@@ -26,7 +26,7 @@ function Lottery() {
 
   const pickOne = (exists: number[]) => {
     return new Promise<number>((res) => {
-      let runNum = 0;
+      let runNum = Math.floor(Math.random() * 13) + 1;
 
       const constVelChangeNumber = (timeOut: number, speed: number) => {
         return new Promise((res) => {
