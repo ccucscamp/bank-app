@@ -19,6 +19,8 @@ code {
   -webkit-animation: LotterySelect 2s ease infinite;
   -moz-animation: LotterySelect 2s ease infinite;
   animation: LotterySelect 2s ease infinite;
+
+  position: relative;
 }
 
 @-webkit-keyframes LotterySelect {

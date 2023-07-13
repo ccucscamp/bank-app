@@ -46,17 +46,18 @@ function Lottery() {
         });
       }
 
-      constVelChangeNumber(500, 10)
-        .then(() => constVelChangeNumber(500, 20))
-        .then(() => constVelChangeNumber(500, 30))
-        .then(() => constVelChangeNumber(500, 40))
-        .then(() => constVelChangeNumber(500, 50))
-        .then(() => constVelChangeNumber(500, 60))
-        .then(() => constVelChangeNumber(500, 70))
-        .then(() => constVelChangeNumber(500, 80))
-        .then(() => constVelChangeNumber(500, 160))
-        .then(() => constVelChangeNumber(500, 320))
-        .then(() => constVelChangeNumber(500, 640))
+      const delay = 500;
+      constVelChangeNumber(delay, 10)
+        .then(() => constVelChangeNumber(delay, 20))
+        .then(() => constVelChangeNumber(delay, 30))
+        .then(() => constVelChangeNumber(delay, 40))
+        .then(() => constVelChangeNumber(delay, 50))
+        .then(() => constVelChangeNumber(delay, 60))
+        .then(() => constVelChangeNumber(delay, 70))
+        .then(() => constVelChangeNumber(delay, 80))
+        .then(() => constVelChangeNumber(delay, 160))
+        .then(() => constVelChangeNumber(delay, 320))
+        .then(() => constVelChangeNumber(delay, 640))
         .then(() => {
           res(runNum);
         });
@@ -67,7 +68,7 @@ function Lottery() {
     const startLottery = () => {
       let choosenNum: number[] = [];
 
-      const update = (v: number) => {
+      const update = async (v: number) => {
         choosenNum = [...choosenNum, v];
         setChoosenNunber(choosenNum);
       };
@@ -81,7 +82,10 @@ function Lottery() {
         .then(() => pickOne(choosenNum))
         .then(update)
         .then(() => pickOne(choosenNum))
-        .then(update);
+        .then(update)
+        .then(() => {
+          setRunningNum(undefined);
+        });
     };
 
     socket.on('lottery_run', () => {
@@ -98,14 +102,14 @@ function Lottery() {
   }, [choosenNumber]);
 
   return <>
-    <Box marginBottom={10}>
+    <Box marginBottom={10} bottom={runningNum ? '0px' : '-20vh'} transition='1s' position='relative'>
       <Flex justify='space-between'>
         {dispChoosenNumber.map((v, i) => {
           const lotteryString = `${numberToCardNum(v)}`;
 
           return <Box
-            key={i} opacity={v !== 0 ? 1 : 0}
-            bg='#d46f70' borderRadius='full' w='100px' h='100px'
+            key={i} opacity={v !== 0 ? 1 : 0} transition='1s'
+            bg='#d46f70' borderRadius='full' w={runningNum ? '100px' : '150px'} h={runningNum ? '100px' : '150px'}
             display='flex' alignItems='center' justifyContent='center'
           >
             <Heading color='whitesmoke' textAlign='center'>{lotteryString}</Heading>
@@ -113,12 +117,12 @@ function Lottery() {
         })}
       </Flex>
     </Box>
-    {runningNum ?
-      <Box className='lottery-ball' borderRadius='full' w='3xs' h='3xs' alignSelf='center'
-        display='flex' alignItems='center' justifyContent='center'>
-        <Heading color='white' textAlign='center' size='4xl'>{numberToCardNum(runningNum)}</Heading>
-      </Box>
-      : null}
+    <Box bottom={runningNum ? '0px' : '-50vh'} transition='1s'
+      className='lottery-ball' borderRadius='full' w='3xs' h='3xs' alignSelf='center'
+      display='flex' alignItems='center' justifyContent='center'
+    >
+      <Heading color='white' textAlign='center' size='4xl'>{numberToCardNum(runningNum ?? 0)}</Heading>
+    </Box>
   </>
 }
 
@@ -134,21 +138,23 @@ function Bank() {
     }
   }, [forceUpdate]);
 
-  return <Box>
-    <Flex direction='column'>
-      <FlipMove>
-        {teams.sort((a, b) => b.beforeFreezeMoney - a.beforeFreezeMoney).map((v, i) => {
-          const diff = (Date.now() - allDiff[v.id]?.at.getTime() < timeOut) ? allDiff[v.id].amount : undefined;
+  return <Container>
+    <Box>
+      <Flex direction='column'>
+        <FlipMove>
+          {teams.sort((a, b) => b.beforeFreezeMoney - a.beforeFreezeMoney).map((v, i) => {
+            const diff = (Date.now() - allDiff[v.id]?.at.getTime() < timeOut) ? allDiff[v.id].amount : undefined;
 
-          return <TeamCard
-            key={v.id} name={v.name} money={v.beforeFreezeMoney} diff={diff}
-            addQMark={v.beforeFreezeMoney !== v.money}
-            marginBottom={2} size='sm'
-          />
-        })}
-      </FlipMove>
-    </Flex>
-  </Box>;
+            return <TeamCard
+              key={v.id} name={v.name} money={v.beforeFreezeMoney} diff={diff}
+              addQMark={v.beforeFreezeMoney !== v.money}
+              marginBottom={2} size='sm'
+            />
+          })}
+        </FlipMove>
+      </Flex>
+    </Box>
+  </Container>;
 }
 
 function App() {
@@ -166,7 +172,7 @@ function App() {
   const [displayMode, setDisplayMode] = useState<'bank' | 'lottery'>('bank');
 
   return (
-    <Container marginTop={10}>
+    <Container marginTop={10} maxW='container.lg'>
       <Flex direction='column' justify='space-betweens'>
         <Center marginBottom={5}>
           <Image boxSize='100' borderRadius='5'
